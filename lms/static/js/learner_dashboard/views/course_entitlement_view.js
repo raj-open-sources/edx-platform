@@ -172,6 +172,7 @@ class CourseEntitlementView extends Backbone.View {
     4) Remove the link from the course card image and title.
     */
     // With a containing backbone view, we can simply re-render the parent card
+    const prevSession = this.entitlementModel.currentSessionId;
     if (this.$parentEl) {
       this.courseCardModel.setUnselected();
       return;
@@ -213,6 +214,9 @@ class CourseEntitlementView extends Backbone.View {
         HtmlUtils.HTML('</span>'),
       ).text,
     );
+
+    // Emit analytics event to track user leaving current session
+    this.trackLeaveSession(prevSession);
   }
 
   enrollError() {
@@ -397,6 +401,14 @@ class CourseEntitlementView extends Backbone.View {
   getAvailableSessionWithId(sessionId) {
     /* Returns an available session given a sessionId */
     return this.entitlementModel.get('availableSessions').find(session => session.session_id === sessionId);
+  }
+
+  trackLeaveSession(prevSession) {
+    window.analytics.track('edx.course.entitlement.session.leave', {
+      category: 'conversion',
+      course: this.entitlementModel.courseName,
+      run: prevSession,
+    });
   }
 }
 

@@ -18,7 +18,7 @@ from entitlements.api.v1.filters import CourseEntitlementFilter
 from entitlements.api.v1.permissions import IsAdminOrSupportOrAuthenticatedReadOnly
 from entitlements.api.v1.serializers import CourseEntitlementSerializer
 from entitlements.models import CourseEntitlement, CourseEntitlementPolicy, CourseEntitlementSupportDetail
-from entitlements.utils import is_course_run_entitlement_fulfillable
+from entitlements.utils import emit_entitlement_session_event, is_course_run_entitlement_fulfillable
 from lms.djangoapps.commerce.utils import refund_entitlement
 from openedx.core.djangoapps.catalog.utils import get_course_runs_for_course
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
@@ -430,6 +430,9 @@ class EntitlementEnrollmentViewSet(viewsets.GenericViewSet):
             )
             if response:
                 return response
+            else:
+                emit_entitlement_session_event(request.user.username, 'new', course_run_key)
+
         elif entitlement.enrollment_course_run.course_id != course_run_id:
             _unenroll_entitlement(
                 course_entitlement=entitlement,
@@ -442,6 +445,8 @@ class EntitlementEnrollmentViewSet(viewsets.GenericViewSet):
             )
             if response:
                 return response
+            else:
+                emit_entitlement_session_event(request.user.username, 'switch', course_run_key)
 
         return Response(
             status=status.HTTP_201_CREATED,

@@ -3,12 +3,14 @@ import logging
 import unittest
 import uuid
 from datetime import datetime, timedelta
+from eventtracking import tracker
 
 from courseware.models import (
     DynamicUpgradeDeadlineConfiguration
 )
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.test import override_settings
 from django.utils.timezone import now
 from mock import patch
 from opaque_keys.edx.locator import CourseKey
@@ -17,6 +19,7 @@ from xmodule.modulestore.tests.factories import CourseFactory
 
 from course_modes.models import CourseMode
 from course_modes.tests.factories import CourseModeFactory
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from openedx.core.djangoapps.content.course_overviews.tests.factories import CourseOverviewFactory
 from openedx.core.djangoapps.schedules.tests.factories import ScheduleFactory
 from openedx.core.djangoapps.site_configuration.tests.factories import SiteFactory
@@ -1033,3 +1036,80 @@ class EntitlementEnrollmentViewSetTest(ModuleStoreTestCase):
         assert CourseEnrollment.is_enrolled(self.user, self.course.id)
         assert course_entitlement.enrollment_course_run is not None
         assert course_entitlement.expired_at is None
+
+    @override_settings(LMS_SEGMENT_KEY="testkey")
+    @patch("entitlements.api.v1.views.get_course_runs_for_course")
+    def test_track_new_session(self, mock_get_course_runs):
+        course_entitlement = CourseEntitlementFactory.create(user=self.user, mode=CourseMode.VERIFIED)
+        mock_get_course_runs.return_value = self.return_values
+        assert course_entitlement.enrollment_course_run is None
+
+        url = reverse(
+            self.ENTITLEMENTS_ENROLLMENT_NAMESPACE,
+            args=[str(course_entitlement.uuid)]
+        )
+
+        data = {
+            'course_run_id': str(self.course.id)
+        }
+
+        with patch('analytics.track') as mock_analytics_track:
+            self.client.post(
+                url,
+                data = json.dumps(data),
+                content_type = 'application/json'
+            )
+            mock_analytics_track.assert_called_with(
+                self.user.username,
+                'edx.course.entitlement.session.new',
+                {
+                    'category': 'conversion',
+                    'course': CourseOverview.get_from_id(self.course.id).display_name,
+                    'run': str(self.course.id),
+                }
+            )
+
+    @override_settings(LMS_SEGMENT_KEY="testkey")
+    @patch("entitlements.api.v1.views.get_course_runs_for_course")
+    def test_track_switch_session(self, mock_get_course_runs):
+        mock_get_course_runs.return_value = self.return_values
+        course_entitlement = CourseEntitlementFactory.create(user=self.user, mode=CourseMode.VERIFIED)
+
+        url = reverse(
+            self.ENTITLEMENTS_ENROLLMENT_NAMESPACE,
+            args=[str(course_entitlement.uuid)]
+        )
+        assert course_entitlement.enrollment_course_run is None
+
+        data = {
+            'course_run_id': str(self.course.id)
+        }
+        with patch('analytics.track') as mock_analytics_track:
+            self.client.post(
+                url,
+                data=json.dumps(data),
+                content_type='application/json',
+            )
+            course_entitlement.refresh_from_db()
+            assert CourseEnrollment.is_enrolled(self.user, self.course.id)
+
+            data = {
+                'course_run_id': str(self.course2.id)
+            }
+
+            self.client.post(
+                url,
+                data=json.dumps(data),
+                content_type='application/json',
+            )
+            course_entitlement.refresh_from_db()
+    
+            mock_analytics_track.assert_called_with(
+                self.user.username,
+                'edx.course.entitlement.session.switch',
+                {
+                    'category': 'conversion',
+                    'course': CourseOverview.get_from_id(self.course2.id).display_name,
+                    'run': str(self.course2.id)
+                }
+            )
