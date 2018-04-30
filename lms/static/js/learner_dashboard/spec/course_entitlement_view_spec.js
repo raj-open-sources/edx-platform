@@ -51,6 +51,7 @@ describe('Course Entitlement View', () => {
       userId: '1',
       enrollUrl: '/api/enrollment/v1/enrollment',
       courseHomeUrl: '/courses/course-v1:edX+DemoX+Demo_Course/course/',
+      courseName: 'Test Course',
     });
   };
 
@@ -130,6 +131,23 @@ describe('Course Entitlement View', () => {
       expect(view.$('.action-header').text().includes(
         'Change to a different session or leave the current session.',
       )).toBe(true);
+    });
+
+    it('should send analytic event when user leaves current session.', () => {
+      const properties = {
+        category: 'conversion',
+        course: view.courseName,
+        run: view.currentSessionId,
+      };
+
+      selectOptions[selectOptions.length - 1].click();
+      view.$('.session-select').find('enroll-btn-initial').click();
+      view.$('.verification-modal').find('.action-items .enroll-btn.final-confirmation-btn').click();
+
+      expect(window.analytics.track).toHaveBeenCalledWith(
+        'edx.course.entitlement.session.leave',
+        properties,
+      );
     });
   });
 
