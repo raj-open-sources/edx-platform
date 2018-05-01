@@ -1063,9 +1063,9 @@ class EntitlementEnrollmentViewSetTest(ModuleStoreTestCase):
                 self.user.username,
                 'edx.course.entitlement.session.new',
                 {
-                    'category': 'conversion',
-                    'course': CourseOverview.get_from_id(self.course.id).display_name,
-                    'run': str(self.course.id),
+                    'category': 'user-engagement',
+                    'label': CourseOverview.get_from_id(self.course.id).display_name,
+                    'display': str(self.course.id),
                 }
             )
 
@@ -1108,8 +1108,8 @@ class EntitlementEnrollmentViewSetTest(ModuleStoreTestCase):
                 self.user.username,
                 'edx.course.entitlement.session.switch',
                 {
-                    'category': 'conversion',
-                    'course': CourseOverview.get_from_id(self.course2.id).display_name,
-                    'run': str(self.course2.id)
+                    'category': 'user-engagement',
+                    'label': CourseOverview.get_from_id(self.course2.id).display_name,
+                    'display': str(self.course2.id)
                 }
             )

@@ -135,9 +135,9 @@ describe('Course Entitlement View', () => {
 
     it('should send analytic event when user leaves current session.', () => {
       const properties = {
-        category: 'conversion',
-        course: view.courseName,
-        run: view.currentSessionId,
+        category: 'user-engagement',
+        label: 'Test Course',
+        display: initialSessionId,
       };
 
       selectOptions[selectOptions.length - 1].click();
@@ -145,7 +145,7 @@ describe('Course Entitlement View', () => {
       view.$('.verification-modal').find('.action-items .enroll-btn.final-confirmation-btn').click();
 
       expect(window.analytics.track).toHaveBeenCalledWith(
-        'edx.course.entitlement.session.leave',
+        'entitlement_session.leave',
         properties,
       );
     });

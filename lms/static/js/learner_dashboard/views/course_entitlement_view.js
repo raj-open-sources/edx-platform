@@ -96,9 +96,10 @@ class CourseEntitlementView extends Backbone.View {
     The new session id is stored as a data attribute on the option in the session-select element.
     */
     // Do not allow for enrollment when button is disabled
+    const currentSession = this.entitlementModel.attributes.currentSessionId;
     if (this.$('.enroll-btn-initial').hasClass('disabled')) return;
 
-    // Grab the id for the desired session, an leave session event will return null
+    // Grab the id for the desired session, a leave session event will return null
     this.currentSessionSelection = this.$('.session-select')
       .find('option:selected').data('session_id');
     const isLeavingSession = !this.currentSessionSelection;
@@ -118,7 +119,7 @@ class CourseEntitlementView extends Backbone.View {
       }),
       statusCode: {
         201: this.enrollSuccess.bind(this),
-        204: this.unenrollSuccess.bind(this),
+        204: this.unenrollSuccess.bind(this, currentSession),
       },
       error: this.enrollError.bind(this),
     });
@@ -162,7 +163,7 @@ class CourseEntitlementView extends Backbone.View {
     this.toggleSessionSelectionPanel();
   }
 
-  unenrollSuccess() {
+  unenrollSuccess(prevSession) {
     /*
     Update external elements on the course card to represent the unenrolled state.
 
@@ -171,8 +172,10 @@ class CourseEntitlementView extends Backbone.View {
     3) Remove the messages associated with the enrolled state.
     4) Remove the link from the course card image and title.
     */
+    // Emit analytics event to track user leaving current session
+    this.trackLeaveSession(prevSession);
+
     // With a containing backbone view, we can simply re-render the parent card
-    const prevSession = this.entitlementModel.currentSessionId;
     if (this.$parentEl) {
       this.courseCardModel.setUnselected();
       return;
@@ -214,9 +217,6 @@ class CourseEntitlementView extends Backbone.View {
         HtmlUtils.HTML('</span>'),
       ).text,
     );
-
-    // Emit analytics event to track user leaving current session
-    this.trackLeaveSession(prevSession);
   }
 
   enrollError() {
@@ -404,10 +404,10 @@ class CourseEntitlementView extends Backbone.View {
   }
 
   trackLeaveSession(prevSession) {
-    window.analytics.track('edx.course.entitlement.session.leave', {
-      category: 'conversion',
-      course: this.entitlementModel.courseName,
-      run: prevSession,
+    window.analytics.track('entitlement_session.leave', {
+      category: 'user-engagement',
+      label: this.entitlementModel.attributes.courseName,
+      display: prevSession,
     });
   }
 }

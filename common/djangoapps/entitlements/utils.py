@@ -74,7 +74,7 @@ def emit_entitlement_session_event(user_id, session_action, course_run_key):
     event_name = 'edx.course.entitlement.session.' + session_action
     if hasattr(settings, 'LMS_SEGMENT_KEY') and settings.LMS_SEGMENT_KEY:
         analytics.track(user_id, event_name, {
-            'category': 'conversion',
-            'course': CourseOverview.get_from_id(course_run_key).display_name,
-            'run': str(course_run_key),
+            'category': 'user-engagement',
+            'label': CourseOverview.get_from_id(course_run_key).display_name,
+            'display': str(course_run_key),
         })
