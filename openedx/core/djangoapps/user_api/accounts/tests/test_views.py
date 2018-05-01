@@ -32,7 +32,13 @@ from openedx.core.djangoapps.user_api.models import RetirementState, UserRetirem
 from openedx.core.djangoapps.user_api.preferences.api import set_user_preference
 from openedx.core.djangolib.testing.utils import CacheIsolationTestCase, skip_unless_lms
 from openedx.core.lib.token_utils import JwtBuilder
-from student.models import PendingEmailChange, UserProfile, get_retired_username_by_username, get_retired_email_by_email
+from student.models import (
+    PendingEmailChange,
+    Registration,
+    UserProfile,
+    get_retired_username_by_username,
+    get_retired_email_by_email
+)
 from student.tests.factories import (
     TEST_PASSWORD,
     ContentTypeFactory,
@@ -1075,6 +1081,9 @@ class TestDeactivateLogout(RetirementTestCase):
             uid='xyz@gmail.com'
         )
 
+        self.test_registration = Registration()
+        self.test_registration.register(self.test_user)
+
         self.url = reverse('deactivate_logout')
 
     def build_post(self, password):
@@ -1094,6 +1103,7 @@ class TestDeactivateLogout(RetirementTestCase):
         self.assertEqual(get_retired_email_by_email(self.test_user.email), updated_user.email)
         self.assertFalse(updated_user.has_usable_password())
         self.assertEqual(list(UserSocialAuth.objects.filter(user=self.test_user)), [])
+        self.assertEqual(list(Registration.objects.filter(user=self.test_user)), [])
         self.assertEqual(len(UserRetirementStatus.objects.filter(user_id=self.test_user.id)), 1)
         # make sure the user cannot log in
         self.assertFalse(self.client.login(username=self.test_user.username, password=self.test_password))

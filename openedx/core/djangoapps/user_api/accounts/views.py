@@ -19,6 +19,7 @@ from rest_framework.viewsets import ViewSet
 from six import text_type
 from social_django.models import UserSocialAuth
 from student.models import (
+    Registration,
     User,
     get_retired_email_by_email,
     get_potentially_retired_user_by_username_and_hash,
@@ -352,16 +353,18 @@ class DeactivateLogoutView(APIView):
             if verify_user_password_response.status_code != status.HTTP_204_NO_CONTENT:
                 return verify_user_password_response
             with transaction.atomic():
-                # 1. Unlink LMS social auth accounts
+                # Unlink LMS social auth accounts
                 UserSocialAuth.objects.filter(user_id=request.user.id).delete()
-                # 2. Change LMS password & email
+                # Change LMS password & email
                 request.user.email = get_retired_email_by_email(request.user.email)
                 request.user.save()
                 _set_unusable_password(request.user)
-                # 3. Unlink social accounts & change password on each IDA, still to be implemented
-                # 4. Add user to retirement queue
+                # TODO: Unlink social accounts & change password on each IDA.
+                # Remove the activation keys sent by email to the user for account activation.
+                Registration.objects.filter(user=user).delete()
+                # Add user to retirement queue.
                 UserRetirementStatus.create_retirement(request.user)
-                # 5. Log the user out
+                # Log the user out.
                 logout(request)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except KeyError:
