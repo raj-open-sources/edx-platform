@@ -18,7 +18,7 @@ class CourseEntitlementView extends Backbone.View {
     const defaults = {
       events: {
         'change .session-select': 'updateEnrollBtn',
-        'click .enroll-btn': 'handleEnrollChange',
+        'click .enroll-btn.final-confirmation-btn': 'handleEnrollChange',
         'keydown .final-confirmation-btn': 'handleVerificationPopoverA11y',
         'click .popover-dismiss': 'hideDialog',
       },
