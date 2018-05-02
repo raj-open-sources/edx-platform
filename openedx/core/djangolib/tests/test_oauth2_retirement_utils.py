@@ -1,5 +1,8 @@
+"""
+Contains tests for OAuth2 model-retirement methods.
+"""
+
 import datetime
-from uuid import uuid4
 
 from django.test import TestCase
 from openedx.core.djangoapps.oauth_dispatch.tests import factories
@@ -23,10 +26,7 @@ from ..oauth2_retirement_utils import (
 )
 
 
-class TestRetireDOTModels(TestCase):
-
-    def setUp(self):
-        super(TestRetireDOTModels, self).setUp()
+class RetireDOTModelsTest(TestCase):
 
     def test_delete_dot_models(self):
         user = UserFactory.create()
@@ -59,10 +59,7 @@ class TestRetireDOTModels(TestCase):
             self.assertFalse(query_set.exists())
 
 
-class TestRetireDOPModels(TestCase):
-
-    def setUp(self):
-        super(TestRetireDOPModels, self).setUp()
+class RetireDOPModelsTest(TestCase):
 
     def test_delete_dop_models(self):
         user = UserFactory.create()

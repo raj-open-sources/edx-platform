@@ -1,3 +1,7 @@
+"""
+Removes user PII from OAuth2 models.
+"""
+
 from oauth2_provider.models import (
     AccessToken as DOTAccessToken,
     Application as DOTApplication,
@@ -12,6 +16,10 @@ from provider.oauth2.models import (
 
 
 class ModelRetirer(object):
+    """
+    Given a list of model names, provides methods for deleting instances of 
+    those models.
+    """
 
     def __init__(self, models_to_retire):
         self._models_to_retire = models_to_retire
@@ -22,6 +30,9 @@ class ModelRetirer(object):
 
     @staticmethod
     def _delete_user_id_from(model, user_id):
+        """
+        Deletes a user from a model by their user id.
+        """
         user_query_results = model.objects.filter(user_id=user_id)
 
         if not user_query_results.exists():
