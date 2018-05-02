@@ -11,14 +11,14 @@ from provider.oauth2.models import (
 )
 
 
-class OAuth2Retirer(object):
+class ModelRetirer(object):
 
     def __init__(self, models_to_retire):
         self._models_to_retire = models_to_retire
 
-    def retire_user(self, user):
+    def retire_user_by_id(self, user_id):
         for model in self._models_to_retire:
-            self._delete_user_from(model=model, user_id=user)
+            self._delete_user_from(model=model, user_id=user_id)
 
     def _delete_user_from(self, model, user_id):
         user_query_results = model.objects.filter(user_id=user_id)
@@ -32,9 +32,9 @@ class OAuth2Retirer(object):
 
 def retire_dot_oauth2_models(user):
     dot_models = [DOTAccessToken, DOTApplication, DOTGrant, DOTRefreshToken]
-    OAuth2Retirer(dot_models).retire_user(user)
+    ModelRetirer(dot_models).retire_user_by_id(user.id)
 
 
 def retire_dop_oauth2_models(user):
     dop_models = [DOPAccessToken, DOPGrant, DOPRefreshToken]
-    OAuth2Retirer(dop_models).retire_user(user)
+    ModelRetirer(dop_models).retire_user_by_id(user.id)
