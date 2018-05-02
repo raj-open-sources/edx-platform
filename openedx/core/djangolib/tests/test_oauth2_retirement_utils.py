@@ -18,107 +18,75 @@ from provider.oauth2.models import (
 )
 
 from ..oauth2_retirement_utils import (
-    delete_from_oauth2_provider_accesstoken,
-    delete_from_oauth2_provider_application,
-    delete_from_oauth2_provider_grant,
-    delete_from_oauth2_provider_refreshtoken,
-    delete_from_oauth2_accesstoken,
-    delete_from_oauth2_refreshtoken,
-    delete_from_oauth2_grant,
+    retire_dop_oauth2_models,
+    retire_dot_oauth2_models,
 )
+
 
 class TestRetireOAuth2DOT(TestCase):
 
     def setUp(self):
         super(TestRetireOAuth2DOT, self).setUp()
-        self.user = UserFactory.create()
-        self.app = factories.ApplicationFactory(user=self.user)
 
-    def test_delete_from_oauth2_provider_application(self):
-        delete_from_oauth2_provider_application(self.user)
-        applications = DOTApplication.objects.filter(user_id=self.user.id)
-        self.assertFalse(applications.exists())
-
-    def test_delete_from_oauth2_provider_accesstoken(self):
-        factories.AccessTokenFactory(
-            user=self.user,
-            application=self.app
-        )
-        delete_from_oauth2_provider_accesstoken(self.user)
-        access_tokens = DOTAccessToken.objects.filter(user_id=self.user.id)
-        self.assertFalse(access_tokens.exists())
-
-    def test_delete_from_oauth2_provider_refreshtoken(self):
+    def test_delete_dot_models(self):
+        user = UserFactory.create()
+        app = factories.ApplicationFactory(user=user)
         access_token = factories.AccessTokenFactory(
-            user=self.user,
-            application=self.app,
+            user=user,
+            application=app
         )
         factories.RefreshTokenFactory(
-            user=self.user,
-            application=self.app,
+            user=user,
+            application=app,
             access_token=access_token,
         )
-        delete_from_oauth2_provider_refreshtoken(self.user)
-        refresh_tokens = DOTRefreshToken.objects.filter(user_id=self.user.id)
-        self.assertFalse(refresh_tokens.exists())
-
-    def test_delete_from_oauth2_provider_grant(self):
         DOTGrant.objects.create(
-            user=self.user,
-            application=self.app,
+            user=user,
+            application=app,
             expires=datetime.datetime(2018, 1, 1),
         )
-        delete_from_oauth2_provider_grant(self.user)
-        grants = DOTGrant.objects.filter(
-            user=self.user,
-        )
-        self.assertFalse(grants.exists())
+
+        retire_dot_oauth2_models(user)
+
+        applications = DOTApplication.objects.filter(user_id=user.id)
+        access_tokens = DOTAccessToken.objects.filter(user_id=user.id)
+        refresh_tokens = DOTRefreshToken.objects.filter(user_id=user.id)
+        grants = DOTGrant.objects.filter(user=user)
+
+        query_sets = [applications, access_tokens, refresh_tokens, grants]
+
+        for query_set in query_sets:
+            self.assertFalse(query_set.exists())
 
 
 class TestRetireOAuth2DOP(TestCase):
 
     def setUp(self):
         super(TestRetireOAuth2DOP, self).setUp()
-        self.user = UserFactory.create()
-        self.client = DOPClient.objects.create(
-            user=self.user,
+
+    def test_delete_dop_models(self):
+        user = UserFactory.create()
+        client = DOPClient.objects.create(
+            user=user,
             client_type=1,
         )
-
-    def test_delete_from_oauth2_accesstoken(self):
-        DOPAccessToken.objects.create(
-            user=self.user,
-            client=self.client,
-        )
-        delete_from_oauth2_accesstoken(self.user)
-        access_tokens = DOPAccessToken.objects.filter(
-            user=self.user
-        )
-        self.assertFalse(access_tokens.exists())
-
-    def test_delete_from_oauth2_refreshtoken(self):
         access_token = DOPAccessToken.objects.create(
-            user=self.user,
-            client=self.client,
+            user=user,
+            client=client,
         )
         DOPRefreshToken.objects.create(
-            user=self.user,
-            client=self.client,
+            user=user,
+            client=client,
             access_token=access_token,
         )
-        delete_from_oauth2_refreshtoken(self.user)
-        refresh_tokens = DOPRefreshToken.objects.filter(
-            user=self.user,
-        )
-        self.assertFalse(refresh_tokens.exists())
 
-    def test_delete_from_oauth2_grant(self):
-        DOPGrant.objects.create(
-            user_id=self.user.id,
-            client_id=self.client.id,
-        )
-        delete_from_oauth2_grant(self.user)
-        grants = DOPGrant.objects.filter(
-            user_id=self.user.id
-        )
-        self.assertFalse(grants.exists())
+        retire_dop_oauth2_models(user)
+
+        access_tokens = DOPAccessToken.objects.filter(user=user)
+        refresh_tokens = DOPRefreshToken.objects.filter(user=user)
+        grants = DOPGrant.objects.filter(user_id=user.id)
+
+        query_sets = [access_tokens, refresh_tokens, grants]
+
+        for query_set in query_sets:
+            self.assertFalse(query_set.exists())

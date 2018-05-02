@@ -10,32 +10,31 @@ from provider.oauth2.models import (
     Grant as DOPGrant,
 )
 
-def delete_user_from(model, user_id):
-    user_query_results = model.objects.filter(user_id=user_id)
 
-    if not user_query_results.exists():
-        return False
+class OAuth2Retirer(object):
 
-    user_query_results.delete()
-    return True
+    def __init__(self, models_to_retire):
+        self._models_to_retire = models_to_retire
 
-def delete_from_oauth2_provider_accesstoken(user):
-    return delete_user_from(model=DOTAccessToken, user_id=user.id)
+    def retire_user(self, user):
+        for model in self._models_to_retire:
+            self._delete_user_from(model=model, user_id=user)
 
-def delete_from_oauth2_provider_application(user):
-    return delete_user_from(model=DOTApplication, user_id=user.id)
+    def _delete_user_from(self, model, user_id):
+        user_query_results = model.objects.filter(user_id=user_id)
 
-def delete_from_oauth2_provider_grant(user):
-    return delete_user_from(model=DOTGrant, user_id=user.id)
+        if not user_query_results.exists():
+            return False
 
-def delete_from_oauth2_provider_refreshtoken(user):
-    return delete_user_from(model=DOTRefreshToken, user_id=user.id)
+        user_query_results.delete()
+        return True
 
-def delete_from_oauth2_accesstoken(user):
-    return delete_user_from(model=DOPAccessToken, user_id=user.id)
 
-def delete_from_oauth2_refreshtoken(user):
-    return delete_user_from(model=DOPRefreshToken, user_id=user.id)
+def retire_dot_oauth2_models(user):
+    dot_models = [DOTAccessToken, DOTApplication, DOTGrant, DOTRefreshToken]
+    OAuth2Retirer(dot_models).retire_user(user)
 
-def delete_from_oauth2_grant(user):
-    return delete_user_from(model=DOPGrant, user_id=user.id)
+
+def retire_dop_oauth2_models(user):
+    dop_models = [DOPAccessToken, DOPGrant, DOPRefreshToken]
+    OAuth2Retirer(dop_models).retire_user(user)
