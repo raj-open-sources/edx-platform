@@ -6,8 +6,8 @@ def runPythonTests() {
                 userRemoteConfigs: [[credentialsId: 'jenkins-worker',
                 refspec: '+refs/heads/*:refs/remotes/origin/* +refs/pull/*:refs/remotes/origin/pr/*',
                 url: 'git@github.com:edx/edx-platform.git']]]
-            sh "bash scripts/all-tests.sh"
-            stash includes: 'reports/**/*coverage*', name: "${TEST_SUITE}_${SHARD}_reports"
+            sh "bash scripts/all-tests.sh | tee ${TEST_SUITE}_${SHARD}_reports"
+            stash includes: 'reports/**/*coverage*', name: "${TEST_SUITE}_${SHARD}_console_output.log"
         }
     }
 }
