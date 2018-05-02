@@ -96,7 +96,7 @@ class CourseEntitlementView extends Backbone.View {
     The new session id is stored as a data attribute on the option in the session-select element.
     */
     // Do not allow for enrollment when button is disabled
-    const currentSession = this.entitlementModel.attributes.currentSessionId;
+    const prevSession = this.entitlementModel.attributes.currentSessionId;
     if (this.$('.enroll-btn-initial').hasClass('disabled')) return;
 
     // Grab the id for the desired session, a leave session event will return null
@@ -118,14 +118,14 @@ class CourseEntitlementView extends Backbone.View {
         course_run_id: this.currentSessionSelection,
       }),
       statusCode: {
-        201: this.enrollSuccess.bind(this),
-        204: this.unenrollSuccess.bind(this, currentSession),
+        201: this.enrollSuccess.bind(this, prevSession),
+        204: this.unenrollSuccess.bind(this, prevSession),
       },
       error: this.enrollError.bind(this),
     });
   }
 
-  enrollSuccess(data) {
+  enrollSuccess(data, prevSession) {
     /*
     Update external elements on the course card to represent the now available course session.
 
@@ -134,6 +134,11 @@ class CourseEntitlementView extends Backbone.View {
     3) Hide the 'View Course' button to the course card.
     */
     const successIconEl = '<span class="fa fa-check" aria-hidden="true"></span>';
+    const eventPage = this.$parentEl ? 'course-dashboard' : 'program-details';
+    const eventAction = prevSession ? 'switch' : 'new';
+
+    // Emit analytics event to track user leaving current session
+    this.trackSessionChange(eventPage, eventAction, prevSession);
 
     // With a containing backbone view, we can simply re-render the parent card
     if (this.$parentEl) {
@@ -173,7 +178,8 @@ class CourseEntitlementView extends Backbone.View {
     4) Remove the link from the course card image and title.
     */
     // Emit analytics event to track user leaving current session
-    this.trackLeaveSession(prevSession);
+    const eventPage = this.$parentEl ? 'course-dashboard' : 'program-details';
+    this.trackSessionChange(eventPage, 'leave', prevSession);
 
     // With a containing backbone view, we can simply re-render the parent card
     if (this.$parentEl) {
@@ -403,11 +409,11 @@ class CourseEntitlementView extends Backbone.View {
     return this.entitlementModel.get('availableSessions').find(session => session.session_id === sessionId);
   }
 
-  trackLeaveSession(prevSession) {
-    window.analytics.track('entitlement_session.leave', {
-      category: 'user-engagement',
-      label: this.entitlementModel.attributes.courseName,
-      display: prevSession,
+  trackSessionChange(eventPage, action, prevSession) {
+    const eventName = `${eventPage}.${action}-session`;
+    window.analytics.track(eventName, {
+      fromCourseRun: prevSession,
+      toCourseRun: this.entitlementModel.attributes.currentSessionId,
     });
   }
 }

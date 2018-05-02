@@ -4,15 +4,12 @@ Utility methods for the entitlement application.
 
 import logging
 import analytics
-from eventtracking import tracker
-from six import text_type
 
 from django.conf import settings
 from django.utils import timezone
 
 from course_modes.models import CourseMode
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from track import contexts
 
 
 log = logging.getLogger("common.entitlements.utils")
@@ -61,20 +58,3 @@ def is_course_run_entitlement_fulfillable(course_run_key, entitlement, compare_d
     can_upgrade = unexpired_paid_modes and entitlement.mode in unexpired_paid_modes
 
     return is_running and can_upgrade and can_enroll
-
-def emit_entitlement_session_event(user_id, session_action, course_run_key):
-    """
-    Tracks a user's entitlement session selection (switch or first time selection)
-
-    Arguments:
-        user_id (str): the ID of the user selecting or switching sessions
-        session_action (str): action taken by user to be tracked
-        course_run_key (CourseKey): identifier for the course run, aka session, the user is selecting
-    """
-    event_name = 'edx.course.entitlement.session.' + session_action
-    if hasattr(settings, 'LMS_SEGMENT_KEY') and settings.LMS_SEGMENT_KEY:
-        analytics.track(user_id, event_name, {
-            'category': 'user-engagement',
-            'label': CourseOverview.get_from_id(course_run_key).display_name,
-            'display': str(course_run_key),
-        })
