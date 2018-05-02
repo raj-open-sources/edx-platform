@@ -23,10 +23,10 @@ from ..oauth2_retirement_utils import (
 )
 
 
-class TestRetireOAuth2DOT(TestCase):
+class TestRetireDOTModels(TestCase):
 
     def setUp(self):
-        super(TestRetireOAuth2DOT, self).setUp()
+        super(TestRetireDOTModels, self).setUp()
 
     def test_delete_dot_models(self):
         user = UserFactory.create()
@@ -59,10 +59,10 @@ class TestRetireOAuth2DOT(TestCase):
             self.assertFalse(query_set.exists())
 
 
-class TestRetireOAuth2DOP(TestCase):
+class TestRetireDOPModels(TestCase):
 
     def setUp(self):
-        super(TestRetireOAuth2DOP, self).setUp()
+        super(TestRetireDOPModels, self).setUp()
 
     def test_delete_dop_models(self):
         user = UserFactory.create()
