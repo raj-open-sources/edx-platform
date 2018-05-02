@@ -20,7 +20,8 @@ class ModelRetirer(object):
         for model in self._models_to_retire:
             self._delete_user_from(model=model, user_id=user_id)
 
-    def _delete_user_from(self, model, user_id):
+    @staticmethod
+    def _delete_user_from(model, user_id):
         user_query_results = model.objects.filter(user_id=user_id)
 
         if not user_query_results.exists():
