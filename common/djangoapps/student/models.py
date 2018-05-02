@@ -2098,6 +2098,22 @@ class ManualEnrollmentAudit(models.Model):
             manual_enrollment = None
         return manual_enrollment
 
+    @classmethod
+    def retire_manual_enrollments(cls, enrollment):
+        """
+        Removes PII (enrolled_email and reason) from any rows corresponding to
+        the enrollment passed in. Bubbles up any exceptions.
+        """
+        retirement_performed = False
+        with transaction.atomic():
+            for row in cls.objects.filter(enrollment=enrollment):
+                row.reason = ""
+                row.enrolled_email = get_retired_email_by_email(row.enrolled_email)
+                row.save()
+                retirement_performed = True
+
+        return retirement_performed
+
 
 class CourseEnrollmentAllowed(DeletableByUserValue, models.Model):
     """
