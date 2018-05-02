@@ -12,6 +12,7 @@ from opaque_keys.edx.keys import CourseKey, UsageKey
 @ddt.ddt
 class UtilsTests(TestCase):
     shard = 4
+
     @ddt.data(
         ['edX/DemoX/Demo_Course', CourseKey.from_string('edX/DemoX/Demo_Course'), CourseKey],
         ['course-v1:edX+DemoX+Demo_Course', CourseKey.from_string('course-v1:edX+DemoX+Demo_Course'), CourseKey],

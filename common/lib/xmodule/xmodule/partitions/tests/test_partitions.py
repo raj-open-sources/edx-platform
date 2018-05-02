@@ -459,6 +459,7 @@ class TestPartitionService(PartitionServiceBaseClass):
     Test getting a user's group out of a partition
     """
     shard = 2
+
     def test_get_user_group_id_for_partition(self):
         # assign the first group to be returned
         user_partition_id = self.user_partition.id

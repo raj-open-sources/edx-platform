@@ -63,6 +63,7 @@ class TestSortedAssetList(unittest.TestCase):
     Tests the SortedAssetList class.
     """
     shard = 1
+
     def setUp(self):
         super(TestSortedAssetList, self).setUp()
         asset_list = [dict(zip(AssetStoreTestData.asset_fields, asset)) for asset in AssetStoreTestData.all_asset_data]

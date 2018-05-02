@@ -1886,6 +1886,7 @@ class TestEditSplitModule(ItemTest):
     Tests around editing instances of the split_test module.
     """
     shard = 1
+
     def setUp(self):
         super(TestEditSplitModule, self).setUp()
         self.user = UserFactory()

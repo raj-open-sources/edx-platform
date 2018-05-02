@@ -15,6 +15,7 @@ class TestMobileAPIDecorators(TestCase):
     Basic tests for mobile api decorators to ensure they retain the docstrings.
     """
     shard = 4
+
     @ddt.data(mobile_view, mobile_course_access)
     def test_function_decorator(self, decorator):
         @decorator()

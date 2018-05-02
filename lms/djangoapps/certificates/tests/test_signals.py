@@ -55,6 +55,7 @@ class WhitelistGeneratedCertificatesTest(ModuleStoreTestCase):
     Tests for whitelisted student auto-certificate generation
     """
     shard = 4
+
     def setUp(self):
         super(WhitelistGeneratedCertificatesTest, self).setUp()
         self.course = CourseFactory.create(self_paced=True)

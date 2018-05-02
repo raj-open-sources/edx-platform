@@ -325,6 +325,7 @@ class TestLibraryContentRender(LibraryContentTest):
     Rendering unit tests for LibraryContentModule
     """
     shard = 1
+
     def test_preview_view(self):
         """ Test preview view rendering """
         self.lc_block.refresh_children()

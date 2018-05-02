@@ -155,7 +155,6 @@ class TestBlockSerializer(TestBlockSerializerBase):
     """
     shard = 4
 
-
     def create_serializer(self, context=None):
         """
         creates a BlockSerializer
@@ -197,7 +196,6 @@ class TestBlockDictSerializer(TestBlockSerializerBase):
     Tests the BlockDictSerializer class, which returns a dict of blocks key-ed by its block_key.
     """
     shard = 4
-
 
     def create_serializer(self, context=None):
         """

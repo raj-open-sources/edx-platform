@@ -154,6 +154,7 @@ class TestEdxJsonEncoder(unittest.TestCase):
     Tests for xml_exporter.EdxJSONEncoder
     """
     shard = 1
+
     def setUp(self):
         super(TestEdxJsonEncoder, self).setUp()
 

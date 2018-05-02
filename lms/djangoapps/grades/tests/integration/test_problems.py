@@ -208,6 +208,7 @@ class TestWeightedProblems(SharedModuleStoreTestCase):
     Test scores and grades with various problem weight values.
     """
     shard = 4
+
     @classmethod
     def setUpClass(cls):
         super(TestWeightedProblems, cls).setUpClass()

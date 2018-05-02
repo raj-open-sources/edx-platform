@@ -27,6 +27,7 @@ _NEXT_WEEK = _TODAY + timedelta(days=7)
 
 class CourseFieldsTestCase(unittest.TestCase):
     shard = 1
+
     def test_default_start_date(self):
         self.assertEqual(
             xmodule.course_module.CourseFields.start.default,
@@ -264,6 +265,7 @@ class IsNewCourseTestCase(unittest.TestCase):
 
 class DiscussionTopicsTestCase(unittest.TestCase):
     shard = 1
+
     def test_default_discussion_topics(self):
         d = get_dummy_course('2012-12-02T12:00')
         self.assertEqual({'General': {'id': 'i4x-test_org-test_course-course-test'}}, d.discussion_topics)
@@ -355,6 +357,7 @@ class SelfPacedTestCase(unittest.TestCase):
 class BypassHomeTestCase(unittest.TestCase):
     """Tests for setting which allows course home to be bypassed."""
     shard = 1
+
     def setUp(self):
         super(BypassHomeTestCase, self).setUp()
         self.course = get_dummy_course('2012-12-02T12:00')

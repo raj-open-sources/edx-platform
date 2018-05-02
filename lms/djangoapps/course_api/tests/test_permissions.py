@@ -8,6 +8,7 @@ from django.test import TestCase
 from ..permissions import can_view_courses_for_username
 from .mixins import CourseApiFactoryMixin
 
+
 class ViewCoursesForUsernameTestCase(CourseApiFactoryMixin, TestCase):
     """
     Verify functionality of view_courses_for_username.

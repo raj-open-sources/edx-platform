@@ -373,7 +373,8 @@ class EditableMetadataFieldsTest(unittest.TestCase):
 
 class TestSerialize(unittest.TestCase):
     """ Tests the serialize, method, which is not dependent on type. """
-    shard = 1 
+    shard = 1
+
     def test_serialize(self):
         assert_equals('null', serialize_field(None))
         assert_equals('-2', serialize_field(-2))

@@ -990,6 +990,7 @@ class VideoDescriptorIndexingTestCase(unittest.TestCase):
     Make sure that VideoDescriptor can format data for indexing as expected.
     """
     shard = 1
+
     def test_video_with_no_subs_index_dictionary(self):
         """
         Test index dictionary of a video module without subtitles.

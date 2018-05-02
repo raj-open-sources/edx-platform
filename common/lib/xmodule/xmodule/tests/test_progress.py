@@ -119,6 +119,7 @@ class ModuleProgressTest(unittest.TestCase):
     ''' Test that get_progress() does the right thing for the different modules
     '''
     shard = 1
+
     def test_xmodule_default(self):
         '''Make sure default get_progress exists, returns None'''
         xmod = x_module.XModule(Mock(), get_test_system(), DictFieldData({'location': 'a://b/c/d/e'}), Mock())

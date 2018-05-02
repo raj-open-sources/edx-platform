@@ -211,6 +211,7 @@ class CourseInfoModuleTestCase(unittest.TestCase):
     Make sure that CourseInfoModule renders updates properly.
     """
     shard = 1
+
     def test_updates_render(self):
         """
         Tests that a course info module will render its updates, even if they are malformed.

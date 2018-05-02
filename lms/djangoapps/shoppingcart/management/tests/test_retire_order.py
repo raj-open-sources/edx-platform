@@ -14,6 +14,7 @@ from xmodule.modulestore.tests.factories import CourseFactory
 class TestRetireOrder(ModuleStoreTestCase):
     """Test the retire_order command"""
     shard = 4
+
     def setUp(self):
         super(TestRetireOrder, self).setUp()
 

@@ -22,6 +22,7 @@ class CourseEnrollmentBadgeTest(ModuleStoreTestCase):
     Tests the event which awards badges based on number of courses a user is enrolled in.
     """
     shard = 4
+
     def setUp(self):
         super(CourseEnrollmentBadgeTest, self).setUp()
         self.badge_classes = [
